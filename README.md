@@ -9,7 +9,7 @@ $ ptex2pdf -l main
 
 Latexのインストールについては、下記等を参照してください。
 
-(Latexのインストール(Ubuntu18.04)){http://kanako.s500.xrea.com/nukblog/show.rhtml?id=688}
+[Latexのインストール(Ubuntu18.04)](http://kanako.s500.xrea.com/nukblog/show.rhtml?id=688)
 
 
 <!-- 修正時刻: Fri Jul 24 06:48:58 2020 -->
