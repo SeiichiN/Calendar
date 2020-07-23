@@ -1,0 +1,21 @@
+@charset "utf-8";
+
+table, th, td {
+	border: solid 1px #444;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+td {
+	text-align: center;
+}
+
+.sun {
+	background-color: pink;
+}
+
+.sat {
+	background-color: #a2e6ef;
+}

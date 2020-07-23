@@ -1,0 +1,455 @@
+\documentclass[dvipdfmx]{jsarticle}
+
+\include{begin}
+
+\section{Calendarクラス}
+
+当月のカレンダーを表示するサーブレットを作成する。
+
+\begin{tcolorbox}
+Calendar.class \\
+java.uti.Calendar
+\end{tcolorbox}
+
+Java の Calendarクラスは以下のようにして使う。
+
+抽象クラスなのでインスタンスの生成はできない。
+
+かわりに、getInstance()メソッドをもっていて、これで
+カレンダーオブジェクトを作成できる。
+
+\vspace{3mm}
+\fbox{Calendar calendar = Calendar.getInstance();}
+\vspace{3mm}
+
+この calendarオブジェクトは、現在の日時で初期化されている。
+
+ここまでをプログラムしてみる。
+
+\begin{lstlisting}[caption=MyCalendar.java]
+import java.util.Calendar;
+
+class MyCalendar {
+  public static void main (String[] args) {
+
+    Calendar calendar = Calendar.getInstance();
+  }
+}
+\end{lstlisting}
+
+
+これで作成した calendarオブジェクトはいろいろ便利なメソッドを
+もっている。
+\vspace{3mm}
+
+\fbox{(int) calendar.get( Calendar.YEAR )}
+
+年が返る。今回の場合、現在日時で初期化されているから、現在の年が整数型で取得できる。
+\vspace{3mm}
+
+\fbox{(int) calendar.get( Calendar.MONTH )}
+
+月が返る。現在の月が整数で取得できる。ただし、1月(January)は 0 である。12月は 11 となる。
+\vspace{3mm}
+
+\fbox{(int) calendar.get( Calendar.DATE )}
+
+日が返る。現在の日付が取得できる。
+\vspace{3mm}
+
+\fbox{(int) calendar.get( Calendar.DAY\_OF\_WEEK )}
+
+曜日が返る。日曜日が 1 である。土曜日は 7 となる。
+\vspace{3mm}
+
+ここまでをプログラムしてみる。
+
+\begin{lstlisting}[caption=MyCalendar.java]
+    import java.util.Calendar;
+
+class MyCalendar {
+    public static void main (String args[] ) {
+        Calendar calendar = Calendar.getInstance();
+
+        System.out.println(calendar.get(Calendar.YEAR));    // 2020
+
+        System.out.println(calendar.get(Calendar.MONTH));   // 6
+
+        System.out.println(calendar.get(Calendar.DATE));    // 今日の日付
+
+        System.out.println(calendar.get(Calendar.DAY_OF_WEEK));   // 4 すなわち水曜日
+    }
+}
+\end{lstlisting}
+
+以下のようにコンパイルして動作させてみる。
+
+\begin{tcolorbox}
+ > javac MyCalendar.java
+ > java MyCalendar
+ 2020
+ 6
+ 15
+ 4
+\end{tcolorbox}
+
+現在の日付によって出力された数字は違うが、年、月、日、曜日が数字で
+出力されるはずである。
+
+また、次のように日を指定して、その日の情報を取得することもできる。
+
+\begin{lstlisting}
+ calendar.set( 2020, 6, 1 );     // 7月1日をセット
+ System.out.println( calendar.get( Calendar.DAY_OF_WEEk ));   // 4
+\end{lstlisting}
+
+\textbf{4} すなわち ''水曜日'' と出力される。
+
+また、前の月の最終日が何日だったかは、次のようにすればわかる。
+
+\begin{lstlisting}
+ calendar.set( 2020, 6, 0 );    // 7月1日の前日をセット
+ System.out.println( calendar.get( Calendar.DATE ));    // 30
+\end{lstlisting}
+
+\section{カレンダーを作成する}
+
+\subsection{Eclipseの場合}
+
+カレンダーアプリを作成する。\\
+Eclipseで作業している場合は、新規プロジェクトで''動的Webプロジェクト'' を選び、プロジェクト名を ''calendar'' とする。\\
+ターゲットランタイムは、''Apache Tomcat v9.0''、動的Webモジュールバージョンは ''4.0''。あとはそのままでよい。
+
+Eclipseのエディター画面が開いたら、''新規'' ー ''サーブレット'' と選択し、
+サーブレット作成画面で、''Javaパッケージ''には ''\textgt{servlet}''、クラス名には ''\textgt{MyCalendar}'' と入力する。\\
+次に開いた ''初期化パラメーター'' と ''URLマッピング'' は、そのままでよい。\\
+''どのメソッドスタブを作成しますか？'' には、スーパークラスも使わないし、postも使わないので、その二つのチェックははずしておいてかまわない。(別につけたままで、あとからそのメソッドを削除してもよい)
+
+
+\subsection{コマンドラインで作業している場合}
+
+適当なフォルダを作成し、その名前を ''calendar'' とする。\\
+説明の都合上、''\verb!C:\Users\user\Documents\calendar!'' とする。
+Tomcatがインストールされているフォルダを ''\verb!C:\pleiades\tomcat\9!'' だとすると、
+''\verb!C:\pleiades\tomcat\9\conf\Catalina\localhost!'' フォルダに ''calendar.xml'' を作成する。
+
+\begin{lstlisting}[caption=calendar.xml]
+ <?xml version='1.0' encoding='utf-8'?>
+<Context path="/calendar" docBase="C:/Users/user/Documents/calendar" />
+\end{lstlisting}
+
+また、作成した ''calendar''フォルダを以下のようにする。
+
+\begin{verbatim}
+./calendar/
+  ├── WEB-INF/
+  │   └── classes/
+  └── src/
+      └── servlet/
+          └── MyCalendar.java
+\end{verbatim}
+
+上のように src/servlet フォルダに ''MyCalendar.java'' を作成しておく。
+
+その内容は、以下である。
+
+\begin{lstlisting}
+package servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.util.Calendar;
+
+@WebServlet("/MyCalendar")
+public class MyCalendar extends HttpServlet {
+  private static final long serialVersionUID = 1L;
+
+  // ここにクラス変数を書く
+ 
+  protected void doGet( HttpServletRequest request,
+                       HttpServletResponse response)
+               throws ServletException, IOException {
+
+    // ここに 処理を書く
+ 
+  }
+}
+\end{lstlisting}
+
+\section{どのようなプログラムにするかを考える}
+
+\subsection{できあがりのイメージ}
+
+できあがりのイメージは以下である。
+
+\begin{tcolorbox}
+\begin{verbatim}
+      2020年 7月
+  日 月 火 水 木 金 土
+  28 29 30  1  2  3  4
+   5  6  7  8  9 10 11
+  12 13 14 15 16 17 18
+  19 20 21 22 23 24 25
+  26 27 28 29 30 31  1
+
+  本日は 2020年7月15日
+\end{verbatim}
+\end{tcolorbox}
+
+上のタイトル部分の ``2020''で使う変数を \textbf{year} 、''7'' を \textbf{month} とする。
+
+カレンダー部分の数字は、配列を使うことにする。変数名は \textbf{calendarDay[]} とする。
+
+配列の中の添字部分は、\textbf{count} という変数とする。
+
+また、該当月が何週あるかを \textbf{weekCount} という変数とする。
+
+一番下の本日の日付を表示する部分だが、''15''で使う変数を \textbf{day} とする。
+
+\subsection{プログラムの構成}
+
+クラスの先頭部分でクラス変数を定義する。\\
+year, month, day, calendarDay[], count, weekCount である。
+
+doGet()メソッドで、ブラウザへの処理をおこなう。
+
+getCalendar()メソッドを作成し、カレンダー計算などの処理はここで行う。
+クラス変数の内容もここで決まる。
+
+
+\begin{lstlisting}
+ class Calendar {
+
+   +----------------+
+   | クラス変数定義 |
+   +----------------+
+
+   protected void doGet(...) {
+     +----------------+
+     |  画面処理      |
+     | クラス変数出力 |
+     +----------------+
+   }
+ 
+   private void getCalendar () {
+     +------------------+
+     |  カレンダー計算  |
+     |  クラス変数内容  |
+     +------------------+
+   }
+ }
+\end{lstlisting}
+
+\section{プログラムリスト}
+
+プログラムリストは以下である。
+
+\begin{lstlisting}
+package servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Calendar;
+
+@WebServlet("/MyCalendar")
+public class MyCalendar extends HttpServlet {
+  private static final long serialVersionUID = 1L;
+	
+  private int year;
+  private int month;
+  private int day;
+  	
+  private int [] calendarDay;
+  private int count;
+  private int weekCount;
+  	
+  protected void doGet( HttpServletRequest request,
+                        HttpServletResponse response)
+                 throws ServletException, IOException {
+
+    response.setContentType("text/html; charset=UTF-8");
+    PrintWriter out = response.getWriter();
+    // 今月のカレンダー情報を取得
+    getCalendar();
+    
+    String todayStr =
+    	String.valueOf(year) + "年" +
+    	String.valueOf(month + 1) + "月" +
+    	String.valueOf(day) + "日";
+    	
+    String dateTimeStr = 
+    	String.valueOf(year) + "-" +
+    	String.valueOf(month) + "-" +
+    	String.valueOf(day);
+    		
+    // 表示データを出力
+    out.println("<!doctype html>");
+    out.println("<html lang=\"ja\">");
+    out.println("<head>");
+    out.println("<meta charset=\"utf-8\">");
+    out.println("<link rel=\"stylesheet\" href=\"calendar.css\">");
+    out.println("</head>");
+    out.println("<body>");
+    out.println("<h1>" + year + "年" + (month + 1) + "月</h1>") ;
+    out.println("<table>");
+    out.println("<tr>");
+    out.println("<th>日</th>");
+    out.println("<th>月</th>");
+    out.println("<th>火</th>");
+    out.println("<th>水</th>");
+    out.println("<th>木</th>");
+    out.println("<th>金</th>");
+    out.println("<th>土</th>");
+    out.println("</tr>");
+    out.println("<tr>");
+    		
+    for (int i = 0; i < weekCount; i++) {
+      for (int j = i * 7; j < i * 7 + 7; j++) {
+    	if (j % 7 == 0) {
+    	  out.println("<td class=\"sun\">" + calendarDay[j] + "</td>");
+    	} else if (j % 7 == 6) {
+    	  out.println("<td class=\"sat\">" + calendarDay[j] + "</td>");
+    	} else {
+    	  out.println("<td>" + calendarDay[j] + "</td>");
+    	}
+      }
+      out.println("</tr><tr>");
+    }
+    		
+    out.println("</tr>");
+    out.println("</table>");
+    out.println("<p>今日は <time datetime=" + dateTimeStr + ">" + todayStr + "</time></p>");
+    out.println("</body>");
+    out.println("</html>");
+  }
+    	
+  private void getCalendar ( ) {
+    // getInstance() -- 現在の日時でのカレンダーを取得する
+    Calendar calendar = Calendar.getInstance();
+    
+    year = calendar.get(Calendar.YEAR);
+    month = calendar.get(Calendar.MONTH);
+    day = calendar.get(Calendar.DATE);
+    
+    // 今月が何曜日から開始されているか？
+    // 今月の1日をセット
+    calendar.set( year, month, 1 );
+    // 1日の曜日を取得 -- Sunday:1 ... Saturday:7 
+    int startWeek = calendar.get( Calendar.DAY_OF_WEEK);
+    
+    // 先月が何日までだったか？
+    // 今月の1日の前日をセット
+    calendar.set( year, month, 0 );
+    // 先月の最終の日付を取得
+    int beforeMonthLastDay = calendar.get( Calendar.DATE );
+    
+    // 今月が何日までか？
+    // 来月の1日の前日をセット
+    calendar.set( year, month + 1, 0 );
+    // 今月の最終の日付を取得
+    int thisMonthLastDay = calendar.get( Calendar.DATE );
+    
+    // カレンダーの各欄を配列で用意
+    calendarDay = new int[42];
+    // カレンダーの各欄の通し番号
+    count = 0;
+    
+    // 先月分の日付をセット
+    // startWeekが月曜日つまり 2 ならば、i=0 となる。
+    // calendarDay[0] には先月の最終日の日付がセットされる。
+    for (int i = startWeek - 2; i >= 0; i--) {
+      calendarDay[count] = beforeMonthLastDay - i;
+      count++;
+    }
+    
+    // 今月分の日付をセット
+    for (int i = 1; i <= thisMonthLastDay; i++) {
+      calendarDay[count] = i;
+      count++;
+    }
+    
+    // 翌月分の日付をセット
+    int nextMonthDay = 1;
+    // カレンダーの欄に余裕がある限り
+    while (count % 7 != 0) {
+      calendarDay[count] = nextMonthDay++;
+      count++;
+    }
+    
+    // カレンダーに何週分あるか
+    weekCount = count / 7;
+  }
+  
+}
+\end{lstlisting}
+
+\subsection{カレンダーのデザイン}
+
+カレンダーに罫線を引いたりするので、スタイルシートを設置する。\\
+''calendar''フォルダの直下に、\textbf{calendar.css} というファイル名で作成する。
+
+\begin{lstlisting}[caption=calendar.css]
+ @charset "utf-8";
+
+table, th, td {
+	border: solid 1px #444;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+td {
+	text-align: center;
+}
+
+.sun {
+	background-color: pink;
+}
+
+.sat {
+	background-color: #a2e6ef;
+}
+\end{lstlisting}
+
+\section{サーバーの再起動}
+
+サーブレットの場合はサーバーを再起動しなくてはならない。
+
+\subsection{Eclipseの場合}
+
+サーバーに Calenderプロジェクトが追加されていることを確認して、再起動する。
+
+そののちに \textbf{http://localhost:8080/calendar/MyCaledar} にアクセスする。
+
+\subsection{コマンドラインの場合}
+
+calendarフォルダ直下にて、以下のようにコンパイルを行う。
+
+\begin{tcolorbox}
+ javac -d ./WEB-INF/classes src/servlet/*.java
+\end{tcolorbox}
+
+Tomcatフォルダの中の binフォルダの中の startup.bat をダブルクリックして起動させる。
+
+\textbf{http://localhost:8080/calendar/MyCalendar} にアクセスするとカレンダーが表示されるはずである。
+
+
+
+
+\include{end}
+
+%% 修正時刻： Wed Jul 15 19:43:02 2020
